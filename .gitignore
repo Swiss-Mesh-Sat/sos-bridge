@@ -17,3 +17,4 @@ android_keystore
 # OS files
 .DS_Store
 .takdev/
+app/src/main/assets/usermanual.pdf
