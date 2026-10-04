@@ -121,3 +121,47 @@ SOS Bridge is free software, released under the **GNU General Public License v3.
 SOS Bridge is not an official TAK product. It comes with no warranty and is no substitute for contacting emergency services.
 
 Developed by Swiss Mesh Sat - https://swissmeshsat.ch
+
+## TAK.gov plugin information
+
+### PURPOSE AND CAPABILITIES
+
+Triggers and cancels the ATAK emergency alert when SOS Flashlight + ATAK starts or stops signaling, so an alert can be raised in two taps. Uses the alert type selected in the ATAK emergency tool (911 Alert by default) and enforces a minimum of 2 minutes between two sends.
+
+### STATUS
+
+In development. Tested on a development setup (ATAK-CIV 5.6.0.24 developer build).
+
+### ATAK VERSIONS
+
+ATAK-CIV 5.6.0
+
+### POINT OF CONTACTS
+
+Nenad Vasilijevic (Swiss Mesh Sat) - swissmeshsat@protonmail.com
+
+### USER GROUPS
+
+Civilian ATAK-CIV users: hunting groups, outdoor and backcountry professionals, survivalists and outdoor teams coordinating over Meshtastic.
+
+### EQUIPMENT REQUIRED
+
+Android device running ATAK-CIV 5.6.0, with SOS Flashlight + ATAK installed (https://github.com/Swiss-Mesh-Sat/SOSFlashlightApp).
+
+### EQUIPMENT SUPPORTED
+
+Any network used by ATAK for emergency alerts. Meshtastic radios through the Meshtastic ATAK plugin: ATAK emergency alerts were tested over Meshtastic; alerts triggered by SOS Bridge over Meshtastic have not been field-tested yet.
+
+### PORTS REQUIRED
+
+None. SOS Bridge opens no network port: it receives local Android broadcasts and uses the ATAK emergency API. Network transmission is handled by ATAK.
+
+### COMPILATION
+
+See *Building* above. Release build: `./gradlew assembleCivRelease`. The version code is fixed by `takStaticVersion` in `gradle.properties`, because the source archive has no git history.
+
+### DEVELOPER NOTES
+
+- Listens for `ch.swissmeshsat.sosbridge.SOS_STARTED` and `ch.swissmeshsat.sosbridge.SOS_STOPPED` through `AtakBroadcast.registerSystemReceiver`, unregistered in `onStop()`.
+- Uses `EmergencyManager`: `getEmergencyType`, `setEmergencyType`, `initiateRepeat`, `setEmergencyOn`, `cancelRepeat`, `isEmergencyOn`.
+- No lambdas, as they break release builds after ProGuard according to the SDK README.
