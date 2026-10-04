@@ -2,7 +2,7 @@
 
 **ATAK-CIV plugin that triggers the ATAK emergency alert from SOS Flashlight: two taps to alert your team over the TAK network, including Meshtastic.**
 
-> Status: early version, tested on a development setup only (see *Tested configuration*). Not yet signed for the Play Store version of ATAK-CIV.
+> Status: early version (0.1). Signed through the TAK.gov third-party pipeline and field-tested over Meshtastic (see *Tested configuration*).
 
 ## Why SOS Bridge?
 
@@ -48,6 +48,15 @@ What this means in practice:
 - If SOS is stopped less than 2 minutes after the alert was sent, the cancellation is sent automatically when the 2 minutes have elapsed. The alert remains visible until then.
 - If SOS is stopped and restarted within the delay, nothing is sent: the alert simply stays active.
 
+### Radio usage over Meshtastic
+
+Observed in our tests with the Meshtastic ATAK plugin (LONG_FAST preset):
+
+- Each alert or cancellation is sent as a compressed generic CoT message, split into 3 LoRa packets.
+- The transfer is confirmed by the receiving device after about 20 to 25 seconds, adding about 0.2 to 0.3 % of air utilization per message.
+- The Meshtastic ATAK plugin waits 42 seconds for this confirmation and retries the whole transfer if it does not arrive. Under poor radio conditions, retries multiply the airtime used and may show "message not delivered" notifications.
+- Short peaks of channel utilization during a transfer are expected.
+
 ### Alert type
 
 SOS Bridge uses the alert type currently selected in ATAK's emergency tool (911 Alert, Ring The Bell, Geo-fence Breached or Troops In Contact), and **911 Alert by default**. In our tests ATAK reset its emergency tool to 911 Alert at every restart: to use another type, select it again in ATAK after launching it. Agree in advance with your group on what each alert type means.
@@ -70,13 +79,12 @@ Unload SOS Bridge in ATAK. SOS Flashlight then behaves like the original app.
 - ATAK must be running with SOS Bridge loaded; otherwise the start/stop messages are lost.
 - The broadcasts are not authenticated: any app on the device could send or listen to them.
 - Manual actions in ATAK are not counted in the 2-minute delay (see *Do not mix*).
-- Behavior on Android 14 and later has not been verified yet.
-- Not yet signed through the TAK.gov third-party pipeline: it currently only loads in the ATAK-CIV developer build shipped with the SDK.
+- Signed through the TAK.gov third-party pipeline: ATAK indicates that the plugin uses a third-party signature.
 
 ## Tested configuration
 
+- ATAK-CIV 5.6.0.12 (Play Store), Samsung Galaxy Tab Active5 (SM-X300), Android 16, SOS Bridge 0.1 signed by the TAK.gov third-party pipeline. Alerts and cancellations received over Meshtastic on a second ATAK device (Samsung Galaxy S23).
 - ATAK-CIV 5.6.0.24 developer build (SDK), Samsung SM-T500, Android 12.
-- Alert type and restart behavior also observed on ATAK-CIV 5.6.0.12 (Play Store).
 
 ## Building
 
@@ -130,7 +138,7 @@ Triggers and cancels the ATAK emergency alert when SOS Flashlight + ATAK starts 
 
 ### STATUS
 
-In development. Tested on a development setup (ATAK-CIV 5.6.0.24 developer build).
+In development (0.1). Signed through the TAK.gov third-party pipeline and tested on ATAK-CIV 5.6.0.12 (Play Store) over Meshtastic.
 
 ### ATAK VERSIONS
 
@@ -150,7 +158,7 @@ Android device running ATAK-CIV 5.6.0, with SOS Flashlight + ATAK installed (htt
 
 ### EQUIPMENT SUPPORTED
 
-Any network used by ATAK for emergency alerts. Meshtastic radios through the Meshtastic ATAK plugin: ATAK emergency alerts were tested over Meshtastic; alerts triggered by SOS Bridge over Meshtastic have not been field-tested yet.
+Any network used by ATAK for emergency alerts. Meshtastic radios through the Meshtastic ATAK plugin: alerts and cancellations triggered by SOS Bridge were tested over Meshtastic.
 
 ### PORTS REQUIRED
 
