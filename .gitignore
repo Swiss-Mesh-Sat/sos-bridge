@@ -1,0 +1,19 @@
+# Build outputs
+build/
+.gradle/
+
+# Local configuration (machine paths, debug key passwords) - never publish
+local.properties
+
+# Android Studio
+*.iml
+.idea/
+
+# Signing keys - never publish
+*.keystore
+*.jks
+android_keystore
+
+# OS files
+.DS_Store
+.takdev/

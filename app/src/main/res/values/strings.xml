@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App -->
+    <string name="app_name">SOS Bridge</string>
+    <!-- description -->
+    <string name="app_desc">Bridges SOS Flashlight to the ATAK emergency alert</string>
+
+
+
+
+</resources>
