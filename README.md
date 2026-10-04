@@ -1,35 +1,123 @@
-(Plugin Name)
+# SOS Bridge
 
+**ATAK-CIV plugin that triggers the ATAK emergency alert from SOS Flashlight: two taps to alert your team over the TAK network, including Meshtastic.**
 
-_________________________________________________________________
-PURPOSE AND CAPABILITIES
+> Status: early version, tested on a development setup only (see *Tested configuration*). Not yet signed for the Play Store version of ATAK-CIV.
 
-(General Description)
+## Why SOS Bridge?
 
+Triggering an emergency alert in ATAK takes several actions: about 4 to 5 taps from an unlocked phone in our tests. With SOS Bridge, two taps in SOS Flashlight are enough, and the alert is sent automatically over the TAK network, including Meshtastic.
 
-_________________________________________________________________
-STATUS
+SOS Flashlight lets you independently enable or disable the screen, the flashlight, vibration and sound, and transmit a custom Morse message. This gives you several modes:
 
-(In Progress?  Expected release?  Released?  To Who?  When?)
+- **Full signal**: light, sound and ATAK alert, to be seen and heard while alerting your team.
+- **Silent alert**: all local outputs disabled, only the ATAK alert goes out over the network.
+- **Light only**: SOS Bridge unloaded in ATAK, no radio transmission at all.
 
-_________________________________________________________________
-POINT OF CONTACTS
+## How it works
 
-(Who is developing this)
+```
+SOS Flashlight (modified)  --SOS_STARTED / SOS_STOPPED-->  SOS Bridge (ATAK plugin)  -->  ATAK emergency alert  -->  TAK network / Meshtastic
+```
 
-_________________________________________________________________
-PORTS REQUIRED
+SOS Bridge requires a modified version of SOS Flashlight that announces when signaling starts and stops:
+**https://github.com/Swiss-Mesh-Sat/SOSFlashlightApp** (branch `sos-bridge`).
 
-(This is important for ATO, networking, and other security concerns)
+The plugin listens for two broadcast actions:
 
-_________________________________________________________________
-EQUIPMENT REQUIRED
+- `ch.swissmeshsat.sosbridge.SOS_STARTED`
+- `ch.swissmeshsat.sosbridge.SOS_STOPPED`
 
-_________________________________________________________________
-EQUIPMENT SUPPORTED
+## Behavior
 
-_________________________________________________________________
-COMPILATION
+### The ATAK alert follows SOS Flashlight
 
-_________________________________________________________________
-DEVELOPER NOTES
+- Starting SOS Flashlight sends the ATAK emergency alert, whatever Morse text is configured.
+- Stopping SOS Flashlight cancels the alert.
+
+### Deliberate 2-minute minimum between two sends
+
+SOS Bridge waits **at least 2 minutes between two sends** (activation or cancellation). This delay is **intentional**.
+
+In our tests, cancelling an alert *before* the ATAK delivery acknowledgment (ACK) of the activation had come back caused a serious problem: the alert stayed stuck on the receiving device, reappeared when dismissed, and the devices kept exchanging messages in a loop, sharply increasing radio airtime. On a LoRa mesh this could saturate the channel for the whole group.
+
+In good radio conditions we observed the ACK coming back 15 to 20 seconds after sending. Meshtastic may retry undelivered messages, which can lengthen this time, so 2 minutes leaves a wide margin. Resending more often would not help a message get through anyway; it would only load the channel.
+
+What this means in practice:
+
+- If SOS is stopped less than 2 minutes after the alert was sent, the cancellation is sent automatically when the 2 minutes have elapsed. The alert remains visible until then.
+- If SOS is stopped and restarted within the delay, nothing is sent: the alert simply stays active.
+
+### Alert type
+
+SOS Bridge uses the alert type currently selected in ATAK's emergency tool (911 Alert, Ring The Bell, Geo-fence Breached or Troops In Contact), and **911 Alert by default**. In our tests ATAK reset its emergency tool to 911 Alert at every restart: to use another type, select it again in ATAK after launching it. Agree in advance with your group on what each alert type means.
+
+### Do not mix SOS Flashlight and ATAK
+
+An alert started from SOS Flashlight should be stopped from SOS Flashlight. An alert started manually in ATAK should be stopped in ATAK. Why:
+
+1. **The plugin does not see your manual actions in ATAK in real time.** It only checks the actual ATAK alert state when SOS Flashlight changes state, or when a pending delay ends. Acting in ATAK during an SOS can lead the plugin to make a later decision that contradicts your action.
+2. **The 2-minute safety delay only applies to sends made by the plugin.** Mixing SOS Flashlight and ATAK bypasses it, with the risk of the stuck-alert / radio-loop problem described above.
+
+During an SOS, the ATAK emergency button can be used to stop the radio broadcast while the light keeps signaling.
+
+### Light only, no radio
+
+Unload SOS Bridge in ATAK. SOS Flashlight then behaves like the original app.
+
+## Known limitations
+
+- ATAK must be running with SOS Bridge loaded; otherwise the start/stop messages are lost.
+- The broadcasts are not authenticated: any app on the device could send or listen to them.
+- Manual actions in ATAK are not counted in the 2-minute delay (see *Do not mix*).
+- Behavior on Android 14 and later has not been verified yet.
+- Not yet signed through the TAK.gov third-party pipeline: it currently only loads in the ATAK-CIV developer build shipped with the SDK.
+
+## Tested configuration
+
+- ATAK-CIV 5.6.0.24 developer build (SDK), Samsung SM-T500, Android 12.
+- Alert type and restart behavior also observed on ATAK-CIV 5.6.0.12 (Play Store).
+
+## Building
+
+Requirements:
+
+- Eclipse Temurin JDK 17
+- Android SDK (installed with Android Studio)
+- ATAK-CIV SDK 5.6.0, available from https://tak.gov (free account). **The SDK is not included in this repository and must not be redistributed.**
+
+Create a `local.properties` file at the project root (never commit it). Offline mode, without TAK.gov credentials:
+
+```
+sdk.dir=/path/to/Android/Sdk
+takdev.plugin=/path/to/ATAK-CIV-5.6.0.x-SDK/atak-gradle-takdev.jar
+sdk.path=/path/to/ATAK-CIV-5.6.0.x-SDK
+```
+
+Then build the debug variant:
+
+```
+JAVA_HOME=/path/to/temurin-17 ./gradlew assembleCivDebug
+```
+
+## Testing without SOS Flashlight
+
+With ATAK running and the plugin loaded, simulate SOS Flashlight with adb:
+
+```
+adb shell am broadcast -a ch.swissmeshsat.sosbridge.SOS_STARTED
+adb shell am broadcast -a ch.swissmeshsat.sosbridge.SOS_STOPPED
+adb logcat -s SosBridge
+```
+
+## License and credits
+
+SOS Bridge is free software, released under the **GNU General Public License v3.0** (see `LICENSE`).
+
+- Built from the ATAK-CIV plugin template (TAK Product Center).
+- Works with [SOS Flashlight](https://github.com/WeilJimmer/SOSFlashlightApp) by WeilJimmer (GPLv3).
+- The approach to triggering the ATAK emergency alert was informed by [TAKWatch](https://github.com/TDF-PL/TAKWatch) (GPL-3.0).
+
+SOS Bridge is not an official TAK product. It comes with no warranty and is no substitute for contacting emergency services.
+
+Developed by Swiss Mesh Sat - https://swissmeshsat.ch
