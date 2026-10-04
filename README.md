@@ -17,10 +17,10 @@ SOS Flashlight lets you independently enable or disable the screen, the flashlig
 ## How it works
 
 ```
-SOS Flashlight (modified)  --SOS_STARTED / SOS_STOPPED-->  SOS Bridge (ATAK plugin)  -->  ATAK emergency alert  -->  TAK network / Meshtastic
+SOS Flashlight + ATAK  --SOS_STARTED / SOS_STOPPED-->  SOS Bridge (ATAK plugin)  -->  ATAK emergency alert  -->  TAK network / Meshtastic
 ```
 
-SOS Bridge requires a modified version of SOS Flashlight that announces when signaling starts and stops:
+SOS Bridge requires **SOS Flashlight + ATAK**, a modified version of SOS Flashlight that announces when signaling starts and stops:
 **https://github.com/Swiss-Mesh-Sat/SOSFlashlightApp** (branch `sos-bridge`).
 
 The plugin listens for two broadcast actions:
