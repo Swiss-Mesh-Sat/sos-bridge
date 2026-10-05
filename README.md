@@ -2,7 +2,7 @@
 
 **ATAK-CIV plugin that triggers the ATAK emergency alert from SOS Flashlight: two taps to alert your team over the TAK network, including Meshtastic.**
 
-> Status: early version (0.1). Signed through the TAK.gov third-party pipeline and field-tested over Meshtastic (see *Tested configuration*).
+> Status: early version (0.2). Signed through the TAK.gov third-party pipeline; field-tested over Meshtastic with version 0.1 (see *Tested configuration*).
 
 ## Why SOS Bridge?
 
@@ -118,6 +118,17 @@ adb shell am broadcast -a ch.swissmeshsat.sosbridge.SOS_STOPPED
 adb logcat -s SosBridge
 ```
 
+## About the icon
+
+![SOS Bridge icon](app/src/main/res/drawable/ic_launcher.png) ![SOS Bridge logo](docs/user_manual/plugin_icon.png)
+
+The logo reads both **SOS** and **SMS** (Swiss Mesh Sat): a red **M** sits at the heart of the **O**. Each element echoes SOS Flashlight: the white frame is the flashlight, the red is the screen, and the M stands for Morse.
+
+## Changelog
+
+- **0.2**: new plugin icon (SOS / SMS monogram).
+- **0.1**: first release, signed through the TAK.gov third-party pipeline.
+
 ## License and credits
 
 SOS Bridge is free software, released under the **GNU General Public License v3.0** (see `LICENSE`).
@@ -138,7 +149,7 @@ Triggers and cancels the ATAK emergency alert when SOS Flashlight + ATAK starts 
 
 ### STATUS
 
-In development (0.1). Signed through the TAK.gov third-party pipeline and tested on ATAK-CIV 5.6.0.12 (Play Store) over Meshtastic.
+In development (0.2). Signed through the TAK.gov third-party pipeline and tested on ATAK-CIV 5.6.0.12 (Play Store) over Meshtastic.
 
 ### ATAK VERSIONS
 
